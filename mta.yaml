@@ -1,0 +1,58 @@
+_schema-version: 2.0.0
+ID: cloud-sample-spaceflight-node2
+version: 1.0.0
+modules:
+  - name: cloud-sample-spaceflight-node2-srv
+    type: nodejs
+    path: srv
+    parameters:
+      memory: 512M
+      disk-quota: 256M
+    provides:
+      - name: srv_api
+        properties:
+          url: '${default-url}'
+    requires:
+      - name: cloud-sample-spaceflight-node2-hdi-container
+  - name: cloud-sample-spaceflight-node2-db
+    type: hdb
+    path: db
+    parameters:
+      memory: 256M
+      disk-quota: 256M
+    requires:
+      - name: cloud-sample-spaceflight-node2-hdi-container
+  
+
+  - name: ui
+    type: html5
+    path: ui
+    parameters:
+       disk-quota: 256M
+       memory: 256M
+    build-parameters:
+       builder: grunt
+    requires:
+     - name: uaa_cloud-sample-spaceflight-node2
+     - name: dest_cloud-sample-spaceflight-node2
+
+resources:
+  - name: cloud-sample-spaceflight-node2-hdi-container
+    type: com.sap.xs.hdi-container
+    properties:
+      hdi-container-name: '${service-name}'
+
+  - name: uaa_cloud-sample-spaceflight-node2
+    parameters:
+       path: ./xs-security.json
+       service-plan: application
+       service: xsuaa
+    type: org.cloudfoundry.managed-service
+
+
+  - name: dest_cloud-sample-spaceflight-node2
+    parameters:
+       service-plan: lite
+       service: destination
+    type: org.cloudfoundry.managed-service
+
